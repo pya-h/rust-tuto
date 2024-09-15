@@ -31,5 +31,5 @@ fn main() {
     println!("{}", p1.introduce());
     let ip1 = IpAddress::V4(192, 168, 0, 1);
     let ip2 = IpAddress::V6(String::from("::1"));
-   / // println!("ip1 = {}, ip2 = {}", ip1)
+    // println!("ip1 = {}, ip2 = {}", ip1)
 }
