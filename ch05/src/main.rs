@@ -1,106 +1,57 @@
-#[derive(Debug)]
 struct User {
-    username: String,
+    name: String,
     email: String,
-    login_count: u64,
-    is_active:  bool
-
+    age: u8,
+    is_male: bool
 }
 
-// struct Test {
-//     x: &str
-// }
-fn new_user(username: String, email: String)  -> User {
-    User {username, // init shorthand syntax
-        email,
-        login_count: 1,
-        is_active: true
-    }
+fn new_user(name: String, email: String, age: u8, is_male: bool) -> User {
+    User {name, email, age, is_male}
 }
 
-fn struct_update_syntax(username: String, email: String, old_user: &User) -> User {
-    // println!("{}", old_user.email);
+fn opposite_sex(user: User) -> User {
     User {
-        username,
-        email,
-        ..*old_user
-    }
-}
-fn struct_update_syntax_bymove(email: String, old_user: User) -> User {
-    User {
-        email,
-        ..old_user
+        is_male: !user.is_male,
+        ..user
     }
 }
 
-#[derive(Debug)]
-//  structs need to impl Debug to be printed by println! MACRO, directly
-struct Rectangle {
-    width: f64,
-    height: f64
-}
-
-impl Rectangle {
-    fn area(&self) -> f64 {
-        self.width * self.height
+impl User {
+    fn opposite_sex(self) -> User {
+        User {
+            is_male: !self.is_male,
+            ..self
+        }
     }
 
-    fn can_hold(&self, other: &Rectangle) -> bool {
-        self.height > other.height && self.width > other.width
+    fn new(name: String, email: String, age: u8, is_male: bool) -> User {
+        User {name, email, age, is_male}
     }
 
-    fn square(size: f64) -> Rectangle {
-        Rectangle { width:size, height: size }
-    }
-
-    fn print(&self) {
-        println!("{} {{width: {}, height: {}}}", if self.width == self.height {"Square"} else {"Rectangle"},
-            self.width, self.height);
+    fn show(&self) {
+        println!("{{\n\tname: {}\n\temail: {}\n\tage: {}\n\tgender: {}\n}}\n", self.name, self.email, self.age,
+             if self.is_male {"Male"} else {"Female"})
     }
 }
-fn area(rectangle: &Rectangle) -> f64 {
-    rectangle.width * rectangle.height
-}
-
 fn main() {
-    let user1 = User{
-        username: String::from("khatmr"),
-        email: String::from("fucker@gmail.com"),
-        login_count: 2,
-        is_active: false
+    // different types of instantiate:
+    let u1 = User {
+        name: String::from("user1"),
+        email: String::from("us1@mail.com"),
+        age: 20,
+        is_male: true
     };
-    println!("user1: {:?}", user1);
-    let user2 = new_user(String::from("fuck"), String::from("yeah@no.com"));
-    let user3 = struct_update_syntax(String::from("paya"), String::from("paya@py@no.com"), &user2);
-    // println!("{}", user2.username);
-    println!("user2: {:?}", user2);
-    let user4 = struct_update_syntax_bymove(String::from("paya@py"), user1);
-// user1 moved
-    // how to send padam without borrowing, using &?
-    // println!("{} {} {} {}", user3.username, user3.email,
-    //     user3.login_count, user3.is_active);
-    println!("user3: {:#?}", user3);
-    // println!("{} {} {} {}", user4.username, user4.email,
-    // user4.login_count, user4.is_active);
-    println!("user4: {:#?} is the last one", user4);
+    let u2 = new_user( String::from("user2"), String::from("us2@mail.com"), 25, false);
 
-    // tuple structs:
-    // struct Name(type1, type2, ...)
-    struct Color(i32, i32, i32);
-    struct Point(f32, f32, f32);
-    struct Vector(f32, f32, f32);
-    // Point and Vector, although they have the same types and same number of params, are different
-    // you cant pass Point inbstead of Vector argument(and reverse) to a function
-    let v = Vector(3.0, 4.0, 4.5);
-    let r1 = Rectangle{width: 10.4, height: 5.5};
-    let r2: Rectangle = Rectangle { width:2.1, height: 3.2 };
-    // Debug formatted struct
-    println!("area of {:?} is {}, r1 can hold r2? {}", r1, r1.area(),
-        if r1.can_hold(&r2) { "yep" } else { "nope" }); // or &r1.Area()
-    // println!("area of {:#?} is {}", r1, area(&r1));
-    // let test = Test{x: "hey me"} // error
-    let sq = Rectangle::square(5.5);
-    sq.print();
-
+    u1.show();
+    u2.show();
+    let u3 = opposite_sex(u1);
+    u3.show();
+    // u1.show(); // this throws, since u1 is moved
+    let u4 = u2.opposite_sex();
+    u4.show();
+    // u2.show(); // u2 is moved too
+    let u2 = User::new(String::from("user2 plus"), String::from("us2plus@mail.com"), 25, false);
+    u2.show(); // now that u2 is re-assigned it can be used again
 }
-// user2 moved
+
