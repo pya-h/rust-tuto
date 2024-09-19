@@ -53,5 +53,15 @@ fn main() {
     // u2.show(); // u2 is moved too
     let u2 = User::new(String::from("user2 plus"), String::from("us2plus@mail.com"), 25, false);
     u2.show(); // now that u2 is re-assigned it can be used again
+
+    struct Color (i8, i8, i8); // tuple struct
+    impl Color {
+        fn show(&self) {
+            println!("({}, {}, {})", self.0, self.1, self.2);
+        }
+    }
+    let color: Color = Color (2, 4, 10);
+    color.show();
+
 }
 
