@@ -1,4 +1,4 @@
-
+#[derive(Debug)]
 struct Rectangle {
     width: f64,
     height: f64
@@ -24,4 +24,6 @@ impl Rectangle {
 fn main() {
     let a = Rectangle::new(10.1, 2.3);
     a.show();
+    println!("Short data: {:?}", a);
+    println!("Prettified: {:#?}", a);
 }
