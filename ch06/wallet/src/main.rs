@@ -1,16 +1,14 @@
-
-
-#[derive(PartialEq, Clone, Debug)]
+#[derive(Clone, Debug)]
 enum Token {
     BTC(Option<f64>),
     USDT(Option<f64>),
     SOL(Option<f64>),
     BNB(Option<f64>),
-    ETH(Option<f64>)
+    ETH(Option<f64>),
 }
 
 impl Token {
-    fn amount(&self) -> Option<f64> {
+    fn probable_amount(&self) -> Option<f64> {
         match self {
             Token::BTC(value) => *value,
             Token::USDT(value) => *value,
@@ -20,24 +18,23 @@ impl Token {
         }
     }
 
-    fn extract_amount(&self) -> f64 {
-        match self.amount() {
+    fn amount(&self) -> f64 {
+        match self.probable_amount() {
             None => 0.0,
-            Some(value) => value
+            Some(value) => value,
         }
     }
 
-    fn increase_amount(&self, inc_amount: f64) -> Token {
-        match self {
-            Token::BTC(_value) => Token::BTC(Some(inc_amount + self.extract_amount())),
-            Token::USDT(_value) => Token::USDT(Some(inc_amount + self.extract_amount())),
-            Token::SOL(_value) => Token::SOL(Some(inc_amount + self.extract_amount())),
-            Token::BNB(_value) => Token::BNB(Some(inc_amount + self.extract_amount())),
-            Token::ETH(_value) => Token::ETH(Some(inc_amount + self.extract_amount())),
+    fn new(type_value: u8, amount: f64) -> Token {
+        match type_value {
+            0 => Token::BTC(Some(amount)),
+            1 => Token::USDT(Some(amount)),
+            2 => Token::SOL(Some(amount)),
+            3 => Token::BNB(Some(amount)),
+            _ => Token::ETH(Some(amount))
         }
     }
 
-    
     fn type_of(&self) -> u8 {
         match self {
             Token::BTC(_value) => 0,
@@ -51,42 +48,48 @@ impl Token {
 
 #[derive(Clone)]
 struct Wallet {
-    content: Vec<Token>
+    content: Vec<Token>,
 }
 
 impl Wallet {
     fn new() -> Self {
-        Wallet {content: vec![]}
+        Wallet { content: vec![] }
     }
 
-    fn add(&mut self, token: Token) {
-        match token.amount() {
-            None => (),
-            Some(new_amount) => {
-                let old = self.content.clone();
-                self.content = vec![];
-
-                for existing_token in old {
-                    if existing_token.type_of() == token.type_of() {
-                        self.content.push(existing_token.increase_amount(new_amount));
-                        return
-                    } else {
-                        self.content.push(existing_token);
-                    }
-                }
-                self.content.push(token);
+    fn add(&mut self, new_token: Token) {
+        let token_type = new_token.type_of();
+        for (index, token) in self.content.iter().enumerate() {
+            if token.type_of() == token_type {
+                self.content[index] = Token::new(token_type, token.amount() + new_token.amount());
+                return;
             }
-        };
+        }
+        self.content.push(new_token);
+    }
 
+    fn _if_let_add(&mut self, new_token: Token) {
+        let token_type = new_token.type_of();
+        for (index, _) in self.content.iter().enumerate() {
+            if self.content[index].type_of() == token_type {
+                if let Some(element) = self.content.get_mut(index) {
+                    *element = Token::new(token_type, element.amount() + new_token.amount())
+                }
+                return;
+            }
+        }
+        self.content.push(new_token);
     }
 }
 
 fn main() {
+    // Note: This example is for practicing with a mixture of enums, structs and special enums such as Option
+    // It could be much simpler but the goal was something else.
     let mut wallet = Wallet::new();
     let token = Token::BTC(Some(0.001));
     wallet.add(token);
     let token = Token::BTC(Some(0.02));
     wallet.add(token);
+    wallet.add(Token::ETH(Some(5.0)));
     for existing_token in wallet.content {
         println!("{:?}", existing_token)
     }
