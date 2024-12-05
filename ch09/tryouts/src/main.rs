@@ -23,6 +23,18 @@ fn read_file(path: &str) -> Result<String, io::Error> {
     }
 }
 
+fn read_file_propagation_shortcut(path: &str) -> Result<String, io::Error> {
+    let mut f: File = File::open(path)?;
+    let mut contents = String::new();
+    f.read_to_string(&mut contents)?;
+    Ok(contents)
+}
+
+fn read_file_short(path: &str) -> Result<String, io::Error> {
+    let mut contents = String::new();
+    File::open(path)?.read_to_string(&mut contents)?;
+    Ok(contents)
+}
 
 fn panicking_read_file(path: &str) -> String {
     let mut f: File = File::open(path).expect("Can not open the file, check if file exists!");
