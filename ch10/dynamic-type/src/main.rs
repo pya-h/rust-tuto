@@ -1,10 +1,79 @@
-use std::ops::Add;
+use num::Num;
+use std::fmt::Display;
+use std::fmt::Formatter;
 
+trait PrimaryOperationsTrait<V, U> {
+    fn plus(&self, other: V) -> Variable<U> ;
 
+    fn minus(&self, other: V) -> Variable<U> ;
+
+    fn multiply_by(&self, other: V) -> Variable<U> ;
+
+    fn divide_in(&self, other: V) -> Variable<U> ;
+}
+#[derive(Clone)]
 struct Variable<T> {
     value: T
 }
 
+
+impl<T> PrimaryOperationsTrait<T, T> for T where T:Num + Copy {
+    fn plus(&self, other: T) -> Variable<T> {
+        Variable::new(*self + other)
+    }
+
+    fn minus(&self, other: T) -> Variable<T> {
+
+        Variable::new(*self - other)
+    }
+
+    fn multiply_by(&self, other: T) -> Variable<T> {
+
+        Variable::new(*self * other)
+    }
+
+    fn divide_in(&self, other: T) -> Variable<T> {
+
+        Variable::new(*self / other)
+    }
+
+}
+
+impl<T> PrimaryOperationsTrait<&Variable<T>, T> for T where T:Num + Copy {
+    fn plus(&self, other: &Variable<T>) -> Variable<T> {
+        other.plus(*self)
+    }
+
+    fn minus(&self, other: &Variable<T>) -> Variable<T> {
+        other.minus(*self)
+    }
+
+    fn multiply_by(&self, other: &Variable<T>) -> Variable<T> {
+        other.multiply_by(*self)
+    }
+
+    fn divide_in(&self, other: &Variable<T>) -> Variable<T> {
+        other.divide_in(*self)
+    }
+}
+
+impl<T> PrimaryOperationsTrait<Variable<T>, T> for T where T:Num + Copy {
+    fn plus(&self, other: Variable<T>) -> Variable<T> {
+        other.value().plus(*self)
+    }
+
+    fn minus(&self, other: Variable<T>) -> Variable<T> {
+        other.value().minus(*self)
+    }
+
+    fn multiply_by(&self, other: Variable<T>) -> Variable<T> {
+        other.value().multiply_by(*self)
+    }
+
+    fn divide_in(&self, other: Variable<T>) -> Variable<T> {
+        other.value().divide_in(*self)
+    }
+}
 impl<T> Variable<T> {
     fn new(value: T) -> Self { Variable {value} }
 
@@ -13,42 +82,28 @@ impl<T> Variable<T> {
     }
 }
 
-trait Addable<T> {
-    fn add<W>(&self, value: &T) -> Variable<W>;
+impl<T> Variable<T> where T:PrimaryOperationsTrait<T, T> {
+
+    fn plus(&self, other: T) -> Variable<T> { self.value.plus(other) }
+    fn minus(&self, other: T) -> Variable<T> { self.value.minus(other) }
+    fn divide_in(&self, other: T) -> Variable<T> { self.value.divide_in(other) }
+    fn multiply_by(&self, other: T) -> Variable<T> { self.value.multiply_by(other) }
+
 }
 
-impl<T, U> Addable<U> for T where T: Copy + Add<Output=T> {
-    fn add<W>(&self, value: &U) -> Variable<W> {
-        Variable::new(*self + value)
+impl<T> Display for Variable<T> where T:Display {
+    fn fmt(&self, f: &mut Formatter) -> Result<(), std::fmt::Error> {
+        write!(f, "{}", self.value())
     }
 }
-
-impl<T, U> Addable<Variable<U>> for T where T: Copy + Add<Output=T> {
-    fn add<W>(&self, value: &Variable<U>) -> Variable<W> {
-        Variable::new(*self + value.value())
-    }
-}
-
-impl<T, U> Addable<T> for Variable<U> {
-    fn add<W>(&self, value: &T) -> Variable<W> {
-        todo!()
-    }
-}
-/*
-impl<T> Addable<T> for String {
-    fn add(&self, value: T) -> Variable<T> {
-        Variable::new(format!("{}{}", self, value))
-    }
-}*/
-/*
-impl<T> Variable<T> {
-    fn add<U: Addable<T>, W>(&self, other: &U) -> Variable<W> {
-        other.add(self)
-    }
-}
-*/
-
-
 fn main() {
+    let i = 10.2;
+    let x: Variable<f32> = i.plus(2.2);
+    let z = x.plus(i);
+    let q = i.multiply_by(&z);
+    let qc = q.clone();
+    let w = i.multiply_by(q); // q will be moved
+    println!("i={}\tx={}\tz={}\tq={}\tw={}", i, x, z, qc, w);
 
+    let a = 2.minus(1.1);
 }
