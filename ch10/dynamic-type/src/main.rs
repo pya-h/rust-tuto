@@ -1,6 +1,7 @@
 use num::Num;
 use std::fmt::Display;
 use std::fmt::Formatter;
+use num::Float;
 
 trait PrimaryOperationsTrait<V, U> {
     fn plus(&self, other: V) -> Variable<U> ;
@@ -18,6 +19,28 @@ struct Variable<T> {
 
 
 impl<T> PrimaryOperationsTrait<T, T> for T where T:Num + Copy {
+    fn plus(&self, other: T) -> Variable<T> {
+        Variable::new(*self + other)
+    }
+
+    fn minus(&self, other: T) -> Variable<T> {
+
+        Variable::new(*self - other)
+    }
+
+    fn multiply_by(&self, other: T) -> Variable<T> {
+
+        Variable::new(*self * other)
+    }
+
+    fn divide_in(&self, other: T) -> Variable<T> {
+
+        Variable::new(*self / other)
+    }
+
+}
+
+impl<T> PrimaryOperationsTrait<T, U> for T where T:Float + Copy, U: Num + Copy {
     fn plus(&self, other: T) -> Variable<T> {
         Variable::new(*self + other)
     }
@@ -97,7 +120,7 @@ impl<T> Display for Variable<T> where T:Display {
     }
 }
 fn main() {
-    let i = 10.2;
+    let i = 10;
     let x: Variable<f32> = i.plus(2.2);
     let z = x.plus(i);
     let q = i.multiply_by(&z);
