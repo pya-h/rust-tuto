@@ -15,4 +15,13 @@ impl<'a> Config<'a> {
     pub fn to_string(&self) -> String {
         format!("{{query: {}, filename: {}}}", self.query, self.filename)
     }
+
+    pub fn query(&self) -> String {
+        self.query.clone()
+    }
+
+
+    pub fn filename(&self) -> String {
+        self.filename.clone()
+    }
 }
