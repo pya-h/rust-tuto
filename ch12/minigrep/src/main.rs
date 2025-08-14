@@ -10,5 +10,7 @@ fn main() {
         println!("minigrep failed: {}", err);
         process::exit(1);
     });
+    
     println!("{}", config.to_string());
+
 }
