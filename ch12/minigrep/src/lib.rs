@@ -8,12 +8,12 @@ pub fn run(cfg: config::Config) -> Result<(), Box<dyn Error>> {
     let mut contents = String::new();
     file.read_to_string(&mut contents)?;
     println!("File successfully read:\n\t{}\n", contents);
-    let (l, v) = search(&cfg.query(), &contents);
+    let (l, v) = search(&cfg.query(), &contents, cfg.options());
     println!("{:?}, {:?}", l, v);
     Ok(())
 }
 
-pub fn search<'a>(query: &str, contents: &'a str) -> (Vec<usize>, Vec<&'a str>) {
+pub fn search<'a>(query: &str, contents: &'a str, options: &config::SearchOptions) -> (Vec<usize>, Vec<&'a str>) {
     let mut results: Vec<&str> = Vec::new();
     let mut lines: Vec<usize> = Vec::new();
     if contents.trim().len() == 0 {
@@ -23,8 +23,14 @@ pub fn search<'a>(query: &str, contents: &'a str) -> (Vec<usize>, Vec<&'a str>) 
         panic!("Empty query string provided!")
     }
 
+    let query_lower = if options.case_sensitive { String::new() } else { query.to_lowercase() };
+
     for (line_number, line) in contents.lines().enumerate() {
-        if line.contains(query) {
+        let matched = match options.case_sensitive {
+            true => line.contains(query),
+            false => line.to_lowercase().contains(&query_lower)
+        };
+        if matched {
             results.push(line);
             lines.push(line_number);
         }
@@ -39,6 +45,8 @@ pub fn search<'a>(query: &str, contents: &'a str) -> (Vec<usize>, Vec<&'a str>) 
 
 #[cfg(test)]
 mod test {
+    use crate::config::SearchOptions;
+
     use super::*;
 
     #[test]
@@ -48,7 +56,7 @@ mod test {
         Rust:
             safe, fast, productive.
             Pick three.";
-        let (line_numbers, lines) = search(query, contents);
+        let (line_numbers, lines) = search(query, contents, &SearchOptions::defaults());
         // using different kinds of asserts
         assert_eq!(line_numbers.len(), 1);
         assert!(line_numbers == [1]);
@@ -60,18 +68,18 @@ mod test {
     #[test]
     #[should_panic(expected = "No match found!")]
     fn search_not_found() {
-        search("X",  "ABCDEFG");
+        search("X",  "ABCDEFG",&SearchOptions::defaults());
     }
 
     #[test]
     #[should_panic(expected = "No contents to search!")]
     fn search_no_contents() {
-        search("S", "");
+        search("S", "",&SearchOptions::defaults());
     }
 
     #[test]
     #[should_panic(expected = "Empty query string")]
     fn search_empty_query() {
-        search("", "Text");
+        search("", "Text",&SearchOptions::defaults());
     }
 }
