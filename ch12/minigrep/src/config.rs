@@ -5,7 +5,7 @@ pub struct Config<'a> {
 }
 
 impl<'a> Config<'a> {
-    pub fn new(args: &[String]) -> Result<Config, String>{
+    pub fn new(args: &'a[String]) -> Result<Config<'a>, String>{
         if args.len() < 3 {
             return Err(format!("[Usage] {} <query> <filename>", args[0]));
         }
