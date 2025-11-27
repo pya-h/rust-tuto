@@ -59,6 +59,16 @@ impl<T> FeedbackFunc<T> where T: Fn(u64) -> u64 {
     }
 }
 
+fn closure_func() -> impl FnMut() -> u64 {
+    let mut fact = 1;
+    let mut idx = 0;
+    move || {
+        idx += 1;
+        fact *= idx;
+        fact
+    }
+}
+
 fn main() {
     let mut cacher = Cacher::new(|x| {
         println!("Calculating...");
@@ -88,7 +98,12 @@ fn main() {
         }
     });
 
-    for i in 1..50 {
+    for _ in 1..50 {
         print!("{}, ", primer.next());
+    }
+    println!();
+    let mut next_factorial = closure_func();
+    for _ in 1..10 {
+        print!("{}, ", next_factorial());
     }
 }
