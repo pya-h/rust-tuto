@@ -1,3 +1,4 @@
+#[allow(unused)]
 use std::{thread, time::Duration};
 
 struct Cacher<T>
@@ -30,8 +31,8 @@ where
                     }
                 }
                 self.update(arg)
-            },
-            None => self.update(arg)
+            }
+            None => self.update(arg),
         }
     }
 
@@ -43,14 +44,23 @@ where
     }
 }
 
-struct FeedbackFunc<T> where T: Fn(u64) -> u64 {
+struct FeedbackFunc<T>
+where
+    T: Fn(u64) -> u64,
+{
     function: T,
-    offset: u64
+    offset: u64,
 }
 
-impl<T> FeedbackFunc<T> where T: Fn(u64) -> u64 {
+impl<T> FeedbackFunc<T>
+where
+    T: Fn(u64) -> u64,
+{
     fn new(function: T) -> Self {
-        FeedbackFunc { function, offset: 0 }
+        FeedbackFunc {
+            function,
+            offset: 0,
+        }
     }
 
     fn next(&mut self) -> u64 {
@@ -85,7 +95,7 @@ fn main() {
         loop {
             let end = ((next1 as f32).powf(0.5)) as u64;
             let mut is_prime = true;
-            for i in 2..end+1 {
+            for i in 2..end + 1 {
                 if next1 % i == 0 {
                     is_prime = false;
                     break;
@@ -106,4 +116,13 @@ fn main() {
     for _ in 1..10 {
         print!("{}, ", next_factorial());
     }
+    println!();
+    let x = vec![1, 2, 3, 4];
+    let y = x.iter().map(|i| {
+        println!("Called for {}", i);
+        i * 2
+    });
+    println!("Testing iterator working logic...");
+    let z: Vec<i32> = y.collect(); // Now map's closure is called!
+    println!("{:?}", z);
 }
