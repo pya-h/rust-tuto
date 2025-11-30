@@ -35,3 +35,12 @@ async fn greet_paya_n_times() -> Result<()> {
 
     Ok(())
 }
+
+#[tokio::test]
+async fn fetch_sample_asset() -> Result<()> {
+    let hc = httpc_test::new_client("http://localhost:8080")?;
+
+    hc.do_get("/sample.txt").await?.print().await?;
+
+    Ok(())
+}
