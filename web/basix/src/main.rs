@@ -4,6 +4,8 @@ use axum::{ Router, extract::{ Path, Query }, response::{ Html, IntoResponse }, 
 use serde::Deserialize;
 use tower_http::services::ServeDir;
 
+mod errors;
+
 #[allow(unused)]
 
 #[derive(Debug, Deserialize)]
